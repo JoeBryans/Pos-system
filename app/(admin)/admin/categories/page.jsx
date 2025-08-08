@@ -1,9 +1,12 @@
 import React from 'react'
 import CategoriesCard from '../components/categories/Card'
+import { GETCategory } from '../../../../actions/Categories';
 
-const page = () => {
+const page = async() => {
+  const Category = await GETCategory();
+  console.log(Category);
   return (
-    <div><CategoriesCard/></div>
+    <div><CategoriesCard Category={Category}/></div>
   )
 }
 

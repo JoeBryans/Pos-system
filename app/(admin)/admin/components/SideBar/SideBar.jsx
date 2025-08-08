@@ -11,6 +11,7 @@ import {
   ChartColumn,
   ChartLine,
   Group,
+  GroupIcon,
   HandCoins,
   LayoutDashboardIcon,
   NotebookPen,
@@ -53,6 +54,11 @@ const Links = [
           title: "Inventory",
           url: "/admin/inventory",
           icon: <Warehouse size={20} />,
+        },
+        {
+          title: "Item Groups",
+          url: "/admin/item-groups",
+          icon: <GroupIcon size={20} />,
         },
         {
           title: "Products",

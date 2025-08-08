@@ -49,6 +49,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../../../../../components/ui/tabs";
+import AddCategory from "./Category";
 
 const cardData = [
   {
@@ -82,7 +83,7 @@ const cardData = [
     color: "text-green-500",
   },
 ];
-const CategoriesCard = () => {
+const CategoriesCard = ({ Category }) => {
   return (
     <div className="w-full flex flex-wrap justify-between gap-2  ">
       <div className=" w-[95%] flex flex-wrap items-center justify-between py-1.5  md:ml-5 md:px-5 rounded-lg ">
@@ -94,10 +95,7 @@ const CategoriesCard = () => {
         </div>
         <div className="flex items-center md:gap-8 mt-2">
           {/*  category*/}
-          <Button variant={"primary"} size={"lg"} className={"cursor-pointer"}>
-            <PlusIcon color="white" size={40} />
-            Add New Category
-          </Button>
+          <AddCategory />
         </div>
       </div>
 

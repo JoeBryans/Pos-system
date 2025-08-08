@@ -1,0 +1,246 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model seller {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  companyName String
+  email       String      @unique
+  password    String
+  image       String?
+  phone       String?
+  location    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orders      Order[]
+  category    Category[]
+  products    Product[]
+  shipping    Shipping[]
+  customer    Customer[]
+  address     Address[]
+  warehouse   Warehouse[]
+  supplier    Supplier[]
+}
+
+model Category {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+  description String
+  products  Product[]
+  sellerId  String    @db.ObjectId
+  sellers   seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  sku          String      @unique
+  barcode      String?
+  buyingPrice  Float?
+  description  String?
+  images       Image?
+  categoryId   String?      @db.ObjectId
+  category     Category?    @relation(fields: [categoryId], references: [id])
+  stock        Stock?
+  sellingPrice Float?
+  lowStock     Int?         @default(5)
+  sold         Int?        @default(0)
+  discount     Float?
+  units        unit?       @relation(fields: [unitId], references: [id])
+  sellerId     String?     @db.ObjectId
+  seller       seller?     @relation(fields: [sellerId], references: [id])
+  unitId       String?      @db.ObjectId
+  brand        Brand ?      @relation(fields: [brandId], references: [id])
+  brandId      String?      @db.ObjectId
+  dimensions   String?
+  weight       Float?
+  taxRate      Float?
+  notes        String?
+  location     String?
+  warehouseId  String ?     @db.ObjectId
+  warehouse    Warehouse?   @relation(fields: [warehouseId], references: [id])
+  supplierId  String ?     @db.ObjectId
+  supplier    Supplier?  @relation(fields: [supplierId], references: [id])
+  orderItems   OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([categoryId, name, sku, buyingPrice, barcode, sellingPrice])
+}
+
+model Image {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       Json?
+  // color     String
+  productId String   @unique @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stock {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @unique @db.ObjectId
+  quantity  Int      @default(0)
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  total      Float
+  orderItems OrderItem[]
+  customerId String?     @db.ObjectId
+  userId     String?     @db.ObjectId
+  status     String?     @default("pending")
+  user       seller?     @relation(fields: [userId], references: [id])
+  customer   Customer?   @relation(fields: [customerId], references: [id])
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String @db.ObjectId
+  productId String @db.ObjectId
+  quantity  Int
+  price     Float
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  phone     String?    @unique
+  email     String?    @unique
+  address   Address[]
+  billing   Billing?
+  shipping  Shipping[]
+  Payment   Payment[]
+  orders    Order[]
+  sellerId  String?    @db.ObjectId
+  sellers   seller?    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Address {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  street     String
+  city       String
+  state      String
+  zipcode    String
+  country    String
+  customerId String   @db.ObjectId
+  sellerId   String?  @db.ObjectId
+  sellers    seller?  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  customer   Customer @relation(fields: [customerId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Brand {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  description String
+  product     Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model unit {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  description String
+  product     Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Billing {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  method     String
+  customerId String @unique @db.ObjectId
+
+  customer  Customer @relation(fields: [customerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Shipping {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  method     String
+  customerId String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+  sellerId   String?  @db.ObjectId
+  sellers    seller?  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Payment {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  method     String
+  amount     Float
+  paymentId  String
+  reference  String
+  status     String
+  recipient  String
+  customerId String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Supplier {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  phone       String?  
+  email       String?  
+  address     String?
+  paymentTems String?
+  code        String?
+  products    Product[]
+  sellerId    String?  @db.ObjectId
+  sellers     seller?  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sellerId])
+  @@index([email])
+  @@index([phone])
+  @@index([address])
+  
+}
+
+model Warehouse {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  warehouseType String
+  location      String
+  description   String
+  sellerId      String?   @db.ObjectId
+  sellers       seller?   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  products      Product[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}

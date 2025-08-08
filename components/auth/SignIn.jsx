@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { email, z } from "zod";
+import { email, set, z } from "zod";
 
 import { Button } from "../../components/ui/button";
 import {
@@ -14,7 +14,12 @@ import {
   FormLabel,
   FormMessage,
 } from "../../components/ui/form";
+import { signIn } from "next-auth/react";
 import { Input } from "../../components/ui/input";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: email().refine((value) => value.length > 2, {
@@ -26,11 +31,40 @@ const formSchema = z.object({
 });
 
 export default function SignIn() {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+      // console.log(data);
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+      console.log("res :", res);
+      
+      if (res?.ok) {
+        setLoading(false);
+        // console.log("ok");
+        toast.success("ok : signed in successfully");
+         router.push("/admin");
+      } else {
+        setLoading(false);
+        toast.error("error : invalid credentials");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+      toast.error(" error : something went wrong");
+    }
   };
   return (
     <Form {...form}>
@@ -45,7 +79,7 @@ export default function SignIn() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="@Email" {...field} type={"email"} />
               </FormControl>
 
               <FormMessage />
@@ -70,7 +104,7 @@ export default function SignIn() {
           type="submit"
           className="w-full bg-primary rounded-md py-2 px-4 text-sm  text-white shadow-sm hover:bg-primary/90 dark:text-gray-900 font-bold cursor-pointer"
         >
-          Submit
+          Submit {loading && <Loader2 className={"ml-2 animate-spin"} />}
         </Button>
       </form>
     </Form>

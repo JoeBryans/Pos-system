@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { use, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -38,43 +39,118 @@ import {
   DownloadIcon,
   PackageIcon,
   DollarSign,
+  RefreshCcw,
 } from "lucide-react";
 import { Category } from "../point-of-sale/Card";
 import { cn } from "../../../../../lib/utils";
 import { NewProduct } from "./NewProduct";
-const cardData = [
-  {
-    title: "Total Products",
-    description: "Total products for the last 30 days",
-    icon: <PackageIcon size={15} color="blue" />,
-    value: 30,
-    color: "text-blue-600",
-  },
-  {
-    title: "Low Stock Products",
-    description: "Total products for the last 30 days",
-    icon: <PackageIcon size={15} color="orange" />,
-    value: 10,
-    color: "text-orange-300",
-  },
+import Image from "next/image";
+import { useDebouncedCallback } from "use-debounce";
 
-  {
-    title: "Out of Stock Products",
-    description: "Total products for the last 30 days",
-    icon: <PackageIcon size={15} color="red" />,
-    value: 10,
-    color: "text-red-500",
-  },
+import {
+  DeletProduct,
+  FilterProducts,
+  GetProducts,
+} from "../../../../../actions/Products";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import ImageUploader from "../../../../../components/ui/imageUploader";
 
-  {
-    title: "Total Value",
-    description: "Total products for the last 30 days",
-    icon: <DollarSign size={15} color="green" />,
-    value: "$1,000,000",
-    color: "text-green-500",
-  },
-];
-const ProductCard = () => {
+const ProductCard = ({ Products, Categories }) => {
+  const [Product, setProduct] = useState(null);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { products, totalProducts, sumPrice } = Products;
+  const [cat, setCat] = useState("All");
+   
+  // filter products by category
+  useEffect(() => {
+    if (cat === "All") return;
+    async function getCategories() {
+      try {
+        const res = await FilterProducts({ category: cat });
+        setProduct(res?.products);
+        console.log(res);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getCategories();
+  }, [cat]);
+  const cardData = [
+    {
+      title: "Total Products",
+      description: "Total products for the last 30 days",
+      icon: <PackageIcon size={15} color="blue" />,
+      value: totalProducts,
+      color: "text-blue-600",
+    },
+    {
+      title: "Low Stock Products",
+      description: "Total products for the last 30 days",
+      icon: <PackageIcon size={15} color="orange" />,
+      value: 10,
+      color: "text-orange-300",
+    },
+
+    {
+      title: "Out of Stock Products",
+      description: "Total products for the last 30 days",
+      icon: <PackageIcon size={15} color="red" />,
+      value: 10,
+      color: "text-red-500",
+    },
+
+    {
+      title: "Total Value",
+      description: "Total products for the last 30 days",
+      icon: <DollarSign size={15} color="green" />,
+      value: `$ ${sumPrice}`,
+      color: "text-green-500",
+    },
+  ];
+
+  // search products
+  const handleSearch = useDebouncedCallback(async (e) => {
+    setSearch(e.target.value);
+    if (e.target.value === "") {
+      return;
+    }
+    const res = await FilterProducts({ search: search });
+    console.log("filteredProducts", res?.FilterProduct);
+    setProduct(res?.FilterProduct);
+  }, 500);
+
+  // reset search and category
+  const handleReset = async () => {
+    setLoading(true);
+    setSearch("");
+    setCat("All");
+    router.refresh();
+    setLoading(false);
+  };
+
+  // delete product
+  const handleDelete = async (id) => {
+    console.log("id", id);
+    try {
+      const res = await DeletProduct(id);
+      console.log(res);
+      if (res?.ok) {
+        toast.success("Product deleted successfully");
+        router.refresh();
+        return res;
+      } else {
+        toast.error("Product not deleted");
+        return res;
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Product not deleted");
+    }
+  };
+
   return (
     <div className="w-full flex flex-wrap justify-between gap-2  ">
       <div className=" w-[95%] flex flex-wrap items-center justify-between py-1.5  md:ml-5 md:px-5 rounded-lg ">
@@ -89,12 +165,11 @@ const ProductCard = () => {
             <DownloadIcon className="h-4 w-4" size={30} />
             Download Template
           </Button>
-          {/*  category*/}
-          {/* <Button variant={"primary"} size={"lg"} className={"cursor-pointer"}>
-            <PlusIcon color="white" size={40} />
-            Add New Product
-          </Button> */}
-          <NewProduct size="lg" variant={"primary"} label={"+ Add New Product"} />
+          <NewProduct
+            size="lg"
+            variant={"primary"}
+            label={"+ Add New Product"}
+          />
         </div>
       </div>
       <div className="w-[98%] mb-4 grid grid-cols-2 md:grid-cols-4 gap-4  px-5">
@@ -105,7 +180,9 @@ const ProductCard = () => {
                 {item.title}
                 <span>{item.icon}</span>
               </CardTitle>
-              <div className={cn("flex items-center gap-2 w-full text-sm")}>
+              <div
+                className={cn("flex flex-col items-start gap-2 w-full text-sm")}
+              >
                 <span
                   className={`text-lg ${
                     item.value > 10 ? "text-red-500" : "text-green-500"
@@ -123,40 +200,50 @@ const ProductCard = () => {
         <h1 className={"font-bold ml-5 text-xl md:text-2xl"}>
           Products Catalog
         </h1>
-        <div className="shadow-md w-full flex flex-wrap items-center justify-between py-1.5  md:px-5 rounded-lg mx-auto ">
+        <div className=" w-full flex flex-wrap items-center justify-between py-1.5  md:px-5 rounded-lg mx-auto ">
           <div className="w-max flex items-center  text-sm cursor-pointer mx-4 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700 ">
-            <Input
-              placeholder="Search product"
-              className="w-[400px]  rounded-none border-0 bg-transparent px-3 py-2 text-sm text-gray-900 outline-none dark:text-white focus:ring-0 "
-            />
             <Button variant={"primary"} size={"icon"}>
               <Search className="h-4 w-4" color="white" />
             </Button>
+            <Input
+              placeholder="Search product"
+              onChange={handleSearch}
+              className="w-[400px]  rounded-none border-0 bg-transparent px-3 py-2 text-sm text-gray-900 outline-none dark:text-white focus:ring-0 "
+            />
           </div>
           <div className="flex items-center gap-4 md:gap-8 mt-2 mx-auto">
             {/*  category*/}
-            <Button variant={"outline"} className={"cursor-pointer"}>
-              <BellRing />
+            <Button
+              variant={"outline"}
+              className={"cursor-pointer"}
+              onClick={handleReset}
+            >
+              <RefreshCcw className={`${loading && "animate-spin"}`} />
               Reset
             </Button>
             <div>
-              <Select className="w-[180px]">
+              <Select
+                className="w-[180px]"
+                value={cat}
+                onValueChange={(value) => setCat(value)}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Categories</SelectLabel>
-                    {Category.map((item, index) => (
-                      <SelectItem value={item.title} key={index}>
-                        {item.title}
+                    <SelectItem value="All">All Category</SelectItem>
+                    {Categories?.map((item, index) => (
+                      <SelectItem value={item.name} key={index}>
+                        {item.name}
                       </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
-            <div>
+            {/* <div>
               <Select className="w-[50px]">
                 <SelectTrigger>
                   <SelectValue placeholder="More Filters" />
@@ -172,64 +259,128 @@ const ProductCard = () => {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
         </div>
-        <Table>
-          <TableCaption>A list of your recent invoices.</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="">S/No</TableHead>
-              <TableHead className="">Name</TableHead>
-              <TableHead>Brand</TableHead>
-              <TableHead>Sku</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Stock</TableHead>
-              <TableHead>Action</TableHead>
-            </TableRow>
-          </TableHeader>
 
-          {Products?.slice(0, 15)?.map((item, index) => (
-            <TableBody key={index}>
-              <TableRow>
-                <TableCell className="">
-                  <Checkbox
-                    id="toggle"
-                    defaultChecked={false}
-                    className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
-                  />
-                </TableCell>
+        {Product === null ? (
+          <div>
+            <Table>
+              <TableCaption>A list of your recent invoices.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="">Image</TableHead>
+                  <TableHead className="">Name</TableHead>
+                  <TableHead>Brand</TableHead>
+                  <TableHead>Sku</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Barcode</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              {products?.map((item, index) => (
+                <TableBody key={index}>
+                  <TableRow className={"space-x-4"}>
+                    <TableCell className="w-44 h-20">
+                      <img
+                        src={item?.images?.url[0]}
+                        alt={item?.name}
+                        className="rounded-md w-18 h-14 "
+                      />
+                    </TableCell>
 
-                <TableCell className="font-medium line-clamp-1">
-                  {item.name}
-                </TableCell>
-                <TableCell>{item.brand}</TableCell>
-                <TableCell>{item.sku}</TableCell>
-                <TableCell>{item.price}</TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell>{item.stock}</TableCell>
-                <TableCell className={"space-x-2 flex "}>
-                  
-                  <NewProduct
-                    variant="outline"
-                    size={"icon"}
-                    label={<Edit />}
-                  />
-                  <Button
-                    variant={"outline"}
-                    size={"icon"}
-                    className={"cursor-pointer"}
-                  >
-                    <Trash2 color="red" />
-                  </Button>
-                </TableCell>
-                {/* <TableCell className="text-right">$250.00</TableCell> */}
-              </TableRow>
-            </TableBody>
-          ))}
-        </Table>
-      </Card>{" "}
+                    <TableCell className="font-medium w-80 line-clamp-2">
+                      {item.name}
+                    </TableCell>
+                    {/* <TableCell>{item.brand}</TableCell> */}
+                    <TableCell>{item?.sku}</TableCell>
+                    <TableCell>{item?.price}</TableCell>
+                    <TableCell>{item?.category?.name}</TableCell>
+                    <TableCell>{item?.stock?.quantity}</TableCell>
+                    <TableCell>{item?.barcode}</TableCell>
+                    <TableCell className={"space-x-2 flex "}>
+                      <NewProduct
+                        variant="outline"
+                        size={"icon"}
+                        edit={item?.id}
+                        label={<Edit />}
+                      />
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        onClick={() => handleDelete(item?.id)}
+                        className={"cursor-pointer"}
+                      >
+                        <Trash2 color="red" />
+                      </Button>
+                    </TableCell>
+                    {/* <TableCell className="text-right">$250.00</TableCell> */}
+                  </TableRow>
+                </TableBody>
+              ))}
+            </Table>
+          </div>
+        ) : (
+          <div>
+            <Table>
+              <TableCaption>A list of your recent invoices.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="">Image</TableHead>
+                  <TableHead className="">Name</TableHead>
+                  {/* <TableHead>Brand</TableHead> */}
+                  <TableHead>Sku</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Barcode</TableHead>
+                  {/* <TableHead>Stock</TableHead> */}
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              {Product?.map((item, index) => (
+                <TableBody key={index}>
+                  <TableRow className={"space-x-4"}>
+                    <TableCell className="w-44 h-20">
+                      <img
+                        src={item?.imageUrl}
+                        alt={item?.name}
+                        className="rounded-md w-18 h-14 "
+                      />
+                    </TableCell>
+
+                    <TableCell className="font-medium w-80 line-clamp-2">
+                      {item.name}
+                    </TableCell>
+                    {/* <TableCell>{item.brand}</TableCell> */}
+                    <TableCell>{item?.sku}</TableCell>
+                    <TableCell>{item?.price}</TableCell>
+                    <TableCell>{item?.category?.name}</TableCell>
+                    <TableCell>{item?.stock}</TableCell>
+                    <TableCell>{item?.barcode}</TableCell>
+                    <TableCell className={"space-x-2 flex "}>
+                      <NewProduct
+                        variant="outline"
+                        size={"icon"}
+                        label={<Edit />}
+                      />
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        className={"cursor-pointer"}
+                      >
+                        <Trash2 color="red" />
+                      </Button>
+                    </TableCell>
+                    {/* <TableCell className="text-right">$250.00</TableCell> */}
+                  </TableRow>
+                </TableBody>
+              ))}
+            </Table>
+          </div>
+        )}
+      </Card>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { Button } from "../../../components/ui/button";
 import { PlusIcon } from "lucide-react";
 import React from "react";
 import Cards from "./components/dashboard/Cards";
+import { SaleForm } from "./components/dashboard/SaleForm";
 
 const page = () => {
   return (
@@ -15,9 +16,10 @@ const page = () => {
         </div>
 
         <div>
-          <Button variant={"primary"} size={"lg"}>
+          <SaleForm label={"+ New Sale"} variant={"primary"} size={"lg"} />
+          {/* <Button variant={"primary"} size={"lg"}>
             <PlusIcon size={30} /> New Sale
-          </Button>
+          </Button> */}
         </div>
       </div>
       {/* cards */}

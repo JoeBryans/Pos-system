@@ -17,19 +17,28 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "../ui/navigation-menu";
 import Logo from "./Logo";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 import CartBadge from "./Cart/Badge";
 import { Cartegories } from "./Category/cartegories";
 import Searchs from "./Search";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "../mode";
+import { LoggedInUser } from "../../lib/LoggedUser";
+import Image from "next/image";
 
 export default function NavBar() {
   const path = usePathname();
+  const [user, setUser] = React.useState(null);
+  // console.log("user", user);
+
+React.useEffect( () => {
+    const GetUser=async()=>{ 
+      const user = await LoggedInUser();
+      setUser(user);
+    }
+    GetUser();
+  }, []);
   console.log(path);
   const isAdminPage = path.startsWith("/admin");
   return (
@@ -166,11 +175,32 @@ export default function NavBar() {
                 </NavigationMenuContent>
               </NavigationMenuItem> */}
               <div className="flex items-center gap-2 text-sm cursor-pointer px-4 ">
-                <UserRound
-                  size={30}
-                  className="w-8 h-8 rounded-full shadow-md border-2 cursor-pointer"
-                />
-                <span>Bryan</span>
+                {user ? (
+                  <div className="flex items-center gap-2 text-sm cursor-pointer px-4 ">
+                    <Image
+                      src={user?.image}
+                      alt="user"
+                      width={300}
+                      height={300}
+                      className="w-8 h-8 rounded-full shadow-md border-2 cursor-pointer"
+                    />
+                    <span>{user?.companyName}</span>
+                  </div>
+                ) : (
+                  // <UserRound
+                  //   size={30}
+                  //   className="w-8 h-8 rounded-full shadow-md border-2 cursor-pointer"
+                  //     />
+                  <Link
+                    href="/sign-in"
+                    className="w-8 h-8 rounded-full shadow-md border-2 cursor-pointer"
+                  >
+                    <UserRound
+                      size={30}
+                      className="w-8 h-8 rounded-full shadow-md border-2 cursor-pointer"
+                    />
+                  </Link>
+                )}
               </div>
               <ModeToggle />
             </NavigationMenuList>

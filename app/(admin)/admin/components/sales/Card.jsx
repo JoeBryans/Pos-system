@@ -45,7 +45,6 @@ import {
   ChartLine,
   RefreshCcw,
 } from "lucide-react";
-import { Category } from "../point-of-sale/Card";
 import { cn } from "../../../../../lib/utils";
 import {
   Tabs,
@@ -88,8 +87,8 @@ const cardData = [
   },
    
 ];
-const SalesCard = () => {
-  const status="Verified"
+const SalesCard = ({ Categories }) => {
+  const status = "Verified";
   return (
     <div className="w-full flex flex-wrap justify-between gap-2  ">
       <div className="shadow-md w-[95%] flex flex-wrap items-center justify-between py-1.5  md:ml-5 px-5 rounded-lg ">
@@ -186,9 +185,9 @@ const SalesCard = () => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Categories</SelectLabel>
-                    {Category.map((item, index) => (
-                      <SelectItem value={item.title} key={index}>
-                        {item.title}
+                    {Categories?.map((item, index) => (
+                      <SelectItem value={item.name} key={index}>
+                        {item.name}
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -198,12 +197,12 @@ const SalesCard = () => {
             <div className="">
               <Select className="w-[180px]">
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Categories" />
+                  <SelectValue placeholder="Today" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Categories</SelectLabel>
-                    {Category.map((item, index) => (
+                    {Categories?.map((item, index) => (
                       <SelectItem value={item.title} key={index}>
                         {item.title}
                       </SelectItem>
