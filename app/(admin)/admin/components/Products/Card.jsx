@@ -153,7 +153,7 @@ const ProductCard = ({ Products, Categories }) => {
   };
 
   return (
-    <div className="w-full flex flex-wrap justify-between gap-2  ">
+    <div className="w-full space-y-2  ">
       <div className=" w-[95%] flex flex-wrap items-center justify-between py-1.5  md:ml-5 md:px-5 rounded-lg ">
         <h1 className={"font-bold text-xl md:text-2xl ml-5"}>All Products </h1>
 

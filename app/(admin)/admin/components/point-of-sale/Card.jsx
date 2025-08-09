@@ -21,6 +21,7 @@ import {
 import Orders from "./orders";
 import { FilterProducts } from "../../../../../actions/Products";
 import { useDebouncedCallback } from "use-debounce";
+import Image from "next/image";
 
 const POSCard = ({ Products, Categories }) => {
   const products = Products.products;
@@ -31,11 +32,11 @@ const POSCard = ({ Products, Categories }) => {
   console.log("search :", search);
 
   //  filter products by category
-useEffect(() => {
-  if (cat === "All") {
-      setProduct(products||[]);
+  useEffect(() => {
+    if (cat === "All") {
+      setProduct(products || []);
       return;
-    };
+    }
     async function getCategories() {
       try {
         const res = await FilterProducts({ category: cat });
@@ -46,21 +47,21 @@ useEffect(() => {
       }
     }
     getCategories();
-  },[cat]);
+  }, [cat]);
 
-const handSearch =useDebouncedCallback( async (e) => {
-  try {
-     setSearch(e.target.value);
-    if (search === "") {
-       setProduct(products||[]);
-     }
-     const res = await FilterProducts({ search: search });
-     console.log("filteredProducts", res?.FilterProduct);
-     setProduct(res?.FilterProduct);
-   } catch (error) {
-     console.log(error);
-     return error;
-   }
+  const handSearch = useDebouncedCallback(async (e) => {
+    try {
+      setSearch(e.target.value);
+      if (search === "") {
+        setProduct(products || []);
+      }
+      const res = await FilterProducts({ search: search });
+      console.log("filteredProducts", res?.FilterProduct);
+      setProduct(res?.FilterProduct);
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
   }, 500);
 
   return (
@@ -80,7 +81,6 @@ const handSearch =useDebouncedCallback( async (e) => {
         {/* search products */}
         <div className="w-44 flex items-center  text-sm cursor-pointer mx-4 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700 ">
           <Button variant={"secondary"} size={"icon"}>
-          
             <Search className="h-4 w-4" />
           </Button>
           <Input
@@ -125,10 +125,12 @@ const handSearch =useDebouncedCallback( async (e) => {
               className={"w-44 md:w-52 h-[320px] overflow-hidden group "}
             >
               <div className="-mt-6 relative max-h-32 w-full bg-indigo-200 group-hover:scale-125 transition-all ease-in-out duration-300">
-                <img
+                <Image
                   className="w-full h-32 "
-                  src={item?.imageUrl}
+                  src={item?.images?.url[0]}
                   alt={item?.name}
+                  width={500}
+                  height={500}
                 />
               </div>
               <CardContent className="text-sm items-start flex flex-col gap-2">
@@ -152,7 +154,7 @@ const handSearch =useDebouncedCallback( async (e) => {
                   {/* Price and Stock Information */}
                   <div className="mt-2 flex justify-between items-center">
                     <span className="text-md font-bold ">
-                      ${item?.price.toFixed(2)}
+                      ${item?.sellingPrice.toFixed(2)}
                     </span>
                   </div>
 

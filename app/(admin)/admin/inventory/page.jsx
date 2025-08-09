@@ -6,7 +6,7 @@ const page = async () => {
   const inventory = await GETInventory();
   console.log(inventory);
   return (
-    <div>
+    <div className='w-full'>
       <InventoryCard inventory={inventory} />
     </div>
   );
