@@ -13,11 +13,8 @@ import {
   CommandItem,
   CommandList,
 } from "./command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./popover";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import Image from "next/image";
 
 const frameworks = [
   {
@@ -42,9 +39,8 @@ const frameworks = [
   },
 ];
 
-export function Combobox() {
+export function Combobox({ products, value, setValue }) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -53,34 +49,62 @@ export function Combobox() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          // className="w-[200px] justify-between"
+          className=" w-full justify-between"
         >
           {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
+            ? products.find((product) => product.id === value)?.name
+            : "Select Product..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="max-w-md w-full">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput
+            placeholder="Search Product..."
+            className="w-full h-9"
+          />
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {products.map((product) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
+                  key={product.id}
+                  value={product.id}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
                     setOpen(false);
+                    // const selectedProduct = products.find(
+                    //   (product) =>
+                    //     product.name.toLowerCase() ===
+                    //     currentValue.toLowerCase()
+                    // );
+                    // if (selectedProduct) {
+                    //   setValue(selectedProduct.id);
+                    //   setOpen(false);
+                    //   // Here you can add logic to handle the selected product.
+                    //   // e.g., call a function to add the product to a cart.
+                    //   console.log(
+                    //     "Selected product ID:",
+                    //     selectedProduct.value
+                    //   );
+                    // }
                   }}
                 >
-                  {framework.label}
+                  <div className={"flex items-center gap-2 mb-4"}>
+                    <Image
+                      src={product.images?.url[0]}
+                      alt={product.name}
+                      width={500}
+                      height={500}
+                      className="rounded-md w-18 h-14 "
+                    />
+                    {product.name}
+                  </div>
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === framework.value ? "opacity-100" : "opacity-0"
+                      value === product.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

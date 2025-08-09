@@ -8,7 +8,7 @@ const page = async () => {
 
   const Categories = await GETCategory();
   // const [Products, Categories] = await Promise.all([GetProducts(), GETCategory()]);
-  console.log("Products", Products);
+  // console.log("Products", Products);
   return (
     <div>
       {/* <ProductCard Categories={Categories} /> */}

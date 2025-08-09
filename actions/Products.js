@@ -83,39 +83,39 @@ export async function GetProducts() {
       where: {
         sellerId: user.id,
       },
-      // include: {
-      //   category: true,
-      //   // brand: true,
-      //   // stock: true,
-      //   // images: true,
-      //   warehouse: {
-      //     select: {
-      //       name: true,
-      //     },
-      //   },
-      //   supplier: true,
-      //   units: {
-      //     select: {
-      //       name: true,
-      //     },
-      //   },
+      include: {
+        category: true,
+        // brand: true,
+        // stock: true,
+        // images: true,
+        warehouse: {
+          select: {
+            name: true,
+          },
+        },
+        supplier: true,
+        units: {
+          select: {
+            name: true,
+          },
+        },
 
-      //   images: {
-      //     select: {
-      //       url: true,
-      //     },
-      //   },
-      //   stock: {
-      //     select: {
-      //       quantity: true,
-      //     },
-      //   },
-      //   brand: {
-      //     select: {
-      //       name:true
-      //     }
-      //   }
-      // },
+        images: {
+          select: {
+            url: true,
+          },
+        },
+        stock: {
+          select: {
+            quantity: true,
+          },
+        },
+        brand: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
     // const totalProducts = await prisma.product.count();
     const totalProducts = await prisma.product.count({
@@ -150,13 +150,39 @@ export async function FilterProducts({ category, search }) {
     }
     const products = await prisma.product.findMany({
       where: {
-        // sellerId: user.id,
+        sellerId: user.id,
         category: {
           name: { contains: category },
         },
       },
       include: {
         category: true,
+        images: {
+          select: {
+            url: true,
+          },
+        },
+        stock: {
+          select: {
+            quantity: true,
+          },
+        },
+        brand: {
+          select: {
+            name: true,
+          },
+        },
+        warehouse: {
+          select: {
+            name: true,
+          },
+        },
+        supplier: true,
+        units: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
     const FilterProduct = await prisma.product.findMany({
@@ -164,17 +190,46 @@ export async function FilterProducts({ category, search }) {
         // sellerId: user.id,
         OR: [
           {
-            name: { contains: search },
-            brand: { contains: search },
-            sku: { contains: search },
+            name: { contains: search, mode: "insensitive" },
+            // brand: { 
+            //   name: { contains: search, mode: "insensitive" },
+            //  },
+            // sku: { contains: search,mode: "insensitive" },
           },
         ],
       },
       include: {
         category: true,
+        images: {
+          select: {
+            url: true,
+          },
+        },
+        stock: {
+          select: {
+            quantity: true,
+          },
+        },
+        brand: {
+          select: {
+            name: true,
+          },
+        },
+        warehouse: {
+          select: {
+            name: true,
+          },
+        },
+        supplier: true,
+        units: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
-    console.log("productsCat", products);
+    // console.log("productsCat", products);
+    console.log("FilterProduct", FilterProduct);
 
     return { products, FilterProduct };
   } catch (error) {

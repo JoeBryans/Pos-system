@@ -128,21 +128,29 @@ const CategoriesCard = ({ Category }) => {
               </TableRow>
             </TableHeader>
 
-            {Products?.slice(0, 15)?.map((item, index) => (
+            {Category?.map((item, index) => (
               <TableBody>
                 <TableRow>
-                  <TableCell className="font-medium ">
-                    {item.category}
-                  </TableCell>
+                  <TableCell className="font-medium ">{item.name}</TableCell>
                   <TableCell className={" line-clamp-1"}>
                     {item.description}
                   </TableCell>
                   <TableCell>
-                    <Button variant={"primary"} size={"sm"}>
-                      Active
-                    </Button>
+                    {item._count?.products > 0 ? (
+                      <Button variant={"primary"} size={"sm"}>
+                        Active
+                      </Button>
+                    ) : (
+                      <Button
+                        variant={"destructive"}
+                        size={"sm"}
+                        // className={"bg-red-600 text-white "}
+                      >
+                        Inactive
+                      </Button>
+                    )}
                   </TableCell>
-                  <TableCell>143</TableCell>
+                  <TableCell>{item?._count?.products}</TableCell>
                   <TableCell>14</TableCell>
 
                   <TableCell className={"space-x-2"}>

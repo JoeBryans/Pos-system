@@ -1,27 +1,27 @@
 
-import { BaggageClaim, Box, Group, House, PackageCheck, Scale, ShoppingBagIcon, ShoppingCartIcon } from "lucide-react";
+import { BaggageClaim, Box, FileDiff, Group, House, PackageCheck, Scale, ShoppingBagIcon, ShoppingCartIcon } from "lucide-react";
 import Link from "next/link";
 import path from "path";
 import React from "react";
 const Items = [
   {
     name: "New Products",
-        id: "1",
-    href:"/admin/products/new",
+    id: "1",
+    href: "/admin/products/new",
     description: "New Products",
     icon: <ShoppingCartIcon size={60} />,
   },
   {
     name: "New Brands",
     id: "2",
-    href:"/admin/item-groups/brands",
+    href: "/admin/item-groups/brands",
     description: "New Brands",
     icon: <ShoppingBagIcon size={60} />,
   },
   {
     name: "New Categories",
-      id: "3",
-    href:"/admin/item-groups/categories",
+    id: "3",
+    href: "/admin/item-groups/categories",
     description: "New Categories",
     icon: <Group size={60} />,
   },
@@ -33,30 +33,37 @@ const Items = [
   // },
   {
     name: "New Units",
-      id: "5",
-    href:"/admin/item-groups/units",
+    id: "5",
+    href: "/admin/item-groups/units",
     description: "New Customers",
     icon: <Scale size={60} />,
   },
   {
     name: "New Warehouses",
-      id: "6",
-    href:"/admin/item-groups/warehouses",
+    id: "6",
+    href: "/admin/item-groups/warehouses",
     description: "New Customers",
     icon: <House size={60} />,
   },
   {
     name: "Suppliers",
-      id: "7",
-    href:"/admin/item-groups/suppliers",
+    id: "7",
+    href: "/admin/item-groups/suppliers",
     description: "New Customers",
     icon: <BaggageClaim size={60} />,
+  },
+  {
+    name: "Sales",
+    id: "8",
+    href: "/admin/item-groups/sales",
+    description: "New Sales",
+    icon: <FileDiff  size={60} />,
   },
 ];
 const page = () => {
   return (
     <div>
-      <div className="grid grid-cols-3 mx-auto gap-8  h-[70vh] overflow-auto">
+      <div className="grid grid-cols-3 mx-auto gap-8  min-h-[100vh] overflow-auto px-5">
         {Items.map((item, index) => (
           <Link
             href={item.href}

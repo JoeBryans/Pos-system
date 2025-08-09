@@ -63,7 +63,7 @@ const ProductCard = ({ Products, Categories }) => {
   const router = useRouter();
   const { products, totalProducts, sumPrice } = Products;
   const [cat, setCat] = useState("All");
-   
+
   // filter products by category
   useEffect(() => {
     if (cat === "All") return;
@@ -114,7 +114,7 @@ const ProductCard = ({ Products, Categories }) => {
   // search products
   const handleSearch = useDebouncedCallback(async (e) => {
     setSearch(e.target.value);
-    if (e.target.value === "") {
+    if (search === "") {
       return;
     }
     const res = await FilterProducts({ search: search });
@@ -127,8 +127,9 @@ const ProductCard = ({ Products, Categories }) => {
     setLoading(true);
     setSearch("");
     setCat("All");
-    router.refresh();
     setLoading(false);
+
+    router.push("/admin/products");
   };
 
   // delete product
@@ -284,9 +285,11 @@ const ProductCard = ({ Products, Categories }) => {
                 <TableBody key={index}>
                   <TableRow className={"space-x-4"}>
                     <TableCell className="w-44 h-20">
-                      <img
+                      <Image
                         src={item?.images?.url[0]}
                         alt={item?.name}
+                        width={500}
+                        height={500}
                         className="rounded-md w-18 h-14 "
                       />
                     </TableCell>
@@ -343,9 +346,11 @@ const ProductCard = ({ Products, Categories }) => {
                 <TableBody key={index}>
                   <TableRow className={"space-x-4"}>
                     <TableCell className="w-44 h-20">
-                      <img
-                        src={item?.imageUrl}
+                      <Image
+                        src={item?.images?.url[0]}
                         alt={item?.name}
+                        width={500}
+                        height={500}
                         className="rounded-md w-18 h-14 "
                       />
                     </TableCell>
@@ -357,7 +362,7 @@ const ProductCard = ({ Products, Categories }) => {
                     <TableCell>{item?.sku}</TableCell>
                     <TableCell>{item?.price}</TableCell>
                     <TableCell>{item?.category?.name}</TableCell>
-                    <TableCell>{item?.stock}</TableCell>
+                    <TableCell>{item?.stock?.quantity}</TableCell>
                     <TableCell>{item?.barcode}</TableCell>
                     <TableCell className={"space-x-2 flex "}>
                       <NewProduct

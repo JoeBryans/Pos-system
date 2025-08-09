@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import prisma from "../lib/db";
 import { LoggedInUser } from "../lib/LoggedUser";
+import { ca } from "zod/v4/locales";
 
 export async function CreateCategory(data) {
   try {
@@ -27,21 +28,25 @@ export async function CreateCategory(data) {
 }
 
 export async function GETCategory() {
-
   try {
     const user = await LoggedInUser();
 
     if (!user) {
       return { message: "user not found", ok: false };
     }
-    const categories = await prisma.category.findMany(
-      {
-        where: {
-          sellerId: user.id,
+      const categories = await prisma.category.findMany({
+      where: {
+        sellerId: user.id,
+      },
+      include: {
+        _count: {
+          select: {
+            products: true,
+          },
         },
-      }
-    );
-
+      },
+    });
+    console.log("categories", categories);
     return categories;
   } catch (error) {
     console.log(error);

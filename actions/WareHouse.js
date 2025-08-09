@@ -45,6 +45,29 @@ export async function GETWareHouse() {
     return error;
   }
 }
+export async function GetsingleWarehouse(recieving) {
+  console.log("recieving", recieving);
+  
+  try {
+    const user = await LoggedInUser();
+
+    if (!user) {
+      return { message: "user not found", ok: false };
+    }
+    const warehouses = await prisma.warehouse.findMany({
+      where: {
+        id: recieving,
+        sellerId: user.id,
+      },
+    });
+    console.log("warehouses", warehouses);
+
+    return warehouses;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
 export async function PUT(id, name) {
   try {
     const user = await LoggedInUser();
@@ -63,7 +86,7 @@ export async function PUT(id, name) {
     });
     console.log(updatedWareHouse);
     return updatedWareHouse;
-  } catch (error) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+  } catch (error) {
     console.log(error);
     return error;
   }
@@ -88,4 +111,4 @@ export async function DELETE(id) {
     console.log(error);
     return error;
   }
-}                                       
+}

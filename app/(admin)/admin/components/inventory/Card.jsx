@@ -49,6 +49,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../../../../../components/ui/tabs";
+import Image from "next/image";
 
 const cardData = [
   {
@@ -82,7 +83,7 @@ const cardData = [
     color: "text-green-500",
   },
 ];
-const InventoryCard = () => {
+const InventoryCard = ({ inventory }) => {
   return (
     <div className="w-full flex flex-wrap justify-between gap-2  ">
       <div className="w-[95%] flex flex-wrap items-center justify-between py-1.5  md:ml-5 md:px-5 rounded-lg ">
@@ -111,9 +112,9 @@ const InventoryCard = () => {
         </div>
       </div>
       {/* analysis card */}
-      <div className="w-[98%] mb-4 grid grid-cols-2 md:grid-cols-4 gap-4  px-5">
+      <div className="w-[98%] mb-4 flex flex-wrap items-center gap-4  px-5">
         {cardData.map((item, index) => (
-          <Card key={index}>
+          <Card key={index} className={"w-md"}>
             <CardContent className="text-sm space-y-3">
               <CardTitle className="text-lg font-semibold flex items-center justify-between w-full">
                 {item.title}
@@ -168,36 +169,42 @@ const InventoryCard = () => {
                 <TableCaption>A list of your recent invoices.</TableCaption>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="">S/No</TableHead>
+                    <TableHead className="">Image</TableHead>
                     <TableHead className="">Name</TableHead>
                     <TableHead>Sku</TableHead>
                     <TableHead>Current Stock</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Value</TableHead>
+                    <TableHead>Price</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Warehouse</TableHead>
 
                     <TableHead>Action</TableHead>
                   </TableRow>
                 </TableHeader>
 
-                {Products?.slice(0, 15)?.map((item, index) => (
+                {inventory?.map((item, index) => (
                   <TableBody key={index}>
                     <TableRow>
                       <TableCell className="">
-                        <Checkbox
-                          id="toggle"
-                          defaultChecked={false}
-                          className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+                        <Image
+                          src={item?.product?.images?.url[0]}
+                          alt={item?.product?.name}
+                          width={500}
+                          height={500}
+                          className="rounded-md w-18 h-14 "
                         />
                       </TableCell>
 
                       <TableCell className="font-medium line-clamp-1">
-                        {item.name}
+                        {item?.product?.name}
                       </TableCell>
-                      <TableCell>{item.sku}</TableCell>
-                      <TableCell>{item.stock}</TableCell>
-                      <TableCell>{item.category}</TableCell>
-                      <TableCell>{item.price}</TableCell>
+                      <TableCell>{item?.product?.sku}</TableCell>
+                      <TableCell>{item?.availableQuantity}</TableCell>
+                      <TableCell>{item?.product?.category?.name}</TableCell>
+                      <TableCell>{item?.product?.price}</TableCell>
+                      <TableCell>In Stock</TableCell>
+                      <TableCell>{item?.warehouse?.location}</TableCell>
                       <TableCell>In Stock</TableCell>
 
                       <TableCell className={"space-x-2"}>
@@ -208,7 +215,6 @@ const InventoryCard = () => {
                         >
                           Adjust Stock
                         </Button>
-                       
                       </TableCell>
                       {/* <TableCell className="text-right">$250.00</TableCell> */}
                     </TableRow>
